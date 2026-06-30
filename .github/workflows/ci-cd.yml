@@ -24,20 +24,22 @@ jobs:
           cache: maven
 
       # 3. COMPILACIÓN Y PRUEBAS UNITARIAS (Cumple IE6)
-      # Ejecuta las pruebas usando la base de datos H2 simulada para evitar caídas
       - name: Compilar y Ejecutar Pruebas Unitarias
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
-      # ¡ACTIVADO RECONECTADO! Envía los datos reales usando tu SONAR_TOKEN
+      # Corregido agregando la URL oficial de SonarCloud para evitar el error de localhost:9000
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn verify sonar:sonar -Dsonar.projectKey=XxCristopherxXC_microservicio-devops -Dsonar.organization=XxCristopherxXC
+        run: |
+          mvn verify sonar:sonar \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.projectKey=XxCristopherxXC_microservicio-devops \
+            -Dsonar.organization=XxCristopherxXC
 
       # 5. AUTENTICACIÓN EN LA NUBE DE AWS (Cumple IE2)
-      # Incluye las tres llaves necesarias para entornos educativos/Learner Labs de Duoc UC
       - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -47,7 +49,6 @@ jobs:
           aws-region: us-east-1
 
       # 6. CONSTRUCCIÓN Y EMPAQUETADO EN CONTENEDOR (Cumple IE2)
-      # Inicia sesión de manera automatizada en el registro de AWS (Amazon ECR)
       - name: Iniciar sesión en Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
