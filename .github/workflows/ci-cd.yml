@@ -28,7 +28,7 @@ jobs:
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
-      # Corregido agregando la URL oficial de SonarCloud para evitar el error de localhost:9000
+      # Corregido con claves de proyecto y organización en minúsculas para SonarQube Cloud
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -36,8 +36,8 @@ jobs:
         run: |
           mvn verify sonar:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.projectKey=XxCristopherxXC_microservicio-devops \
-            -Dsonar.organization=XxCristopherxXC
+            -Dsonar.projectKey=xxcristopherxxc_microservicio-devops \
+            -Dsonar.organization=xxcristopherxxc
 
       # 5. AUTENTICACIÓN EN LA NUBE DE AWS (Cumple IE2)
       - name: Configurar credenciales de AWS
