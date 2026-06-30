@@ -1,0 +1,63 @@
+name: AWS DevOps Pipeline - Spring Boot
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clonar tu repositorio real de GitHub
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      # 2. Configurar el entorno de Java 17 que declaraste en tu pom.xml
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # 3. COMPILACIÓN Y PRUEBAS UNITARIAS (Cumple IE6)
+      # Si alguna prueba de tu código falla, el pipeline se frena AUTOMÁTICAMENTE aquí
+      # evitando que el error suba a AWS y protegiendo el entorno productivo.
+      - name: Compilar y Ejecutar Pruebas Unitarias
+        run: mvn clean test
+
+      # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
+      # Envía el reporte de Jacoco a SonarCloud para evaluar vulnerabilidades.
+      # Si no pasa el umbral mínimo (Quality Gate), el pipeline también se interrumpe de inmediato.
+      - name: Análisis de Calidad y Seguridad con SonarCloud
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn verify sonar:sonar -Dsonar.projectKey=XxCristopherxXC_microservicio-devops -Dsonar.organization=XxCristopherxXC
+
+      # 5. AUTENTICACIÓN EN LA NUBE DE AWS (Cumple IE2)
+      - name: Configurar credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # 6. CONSTRUCCIÓN Y EMPAQUETADO EN CONTENEDOR (Cumple IE2)
+      # Inicia sesión de manera automatizada en el registro de AWS (Amazon ECR)
+      - name: Iniciar sesión en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Construye la imagen usando tu Dockerfile local y la sube a la nube
+      - name: Construir y Subir Imagen a Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: microservicio-devops
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
