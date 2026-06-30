@@ -28,12 +28,13 @@ jobs:
       - name: Compilar y Ejecutar Pruebas Unitarias
         run: mvn clean test
 
-      # 4. ANÁLISIS DESACTIVADO TEMPORALMENTE (Comentado para evitar caídas sin Token real)
-      # - name: Análisis de Calidad y Seguridad con SonarCloud
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #   run: mvn verify sonar:sonar -Dsonar.projectKey=XxCristopherxXC_microservicio-devops -Dsonar.organization=XxCristopherxXC
+      # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
+      # ¡ACTIVADO RECONECTADO! Envía los datos reales usando tu SONAR_TOKEN
+      - name: Análisis de Calidad y Seguridad con SonarCloud
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn verify sonar:sonar -Dsonar.projectKey=XxCristopherxXC_microservicio-devops -Dsonar.organization=XxCristopherxXC
 
       # 5. AUTENTICACIÓN EN LA NUBE DE AWS (Cumple IE2)
       # Incluye las tres llaves necesarias para entornos educativos/Learner Labs de Duoc UC
