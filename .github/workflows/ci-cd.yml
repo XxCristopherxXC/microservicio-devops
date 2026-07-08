@@ -41,9 +41,9 @@ jobs:
             -Dsonar.organization=xxcristopherxxc
 
       # 5. CONTROL DE CALIDAD ESTRICTO (Cumple IE6 - Mecanismo de Falla Crítica)
-      # Acción oficial con versión fija para solucionar el error "repository not found"
+      # CORREGIDO: Se usa el nombre de repositorio oficial de SonarSource sin el "cloud"
       - name: Validar Quality Gate (Interrupción Automatizada)
-        uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
+        uses: sonarsource/sonar-quality-gate-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
