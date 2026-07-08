@@ -45,19 +45,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1 # Ajustado exactamente a Norte de Virginia como tu panel
+          aws-region: us-east-1
 
-      # 6. CONSTRUCCIÓN Y EMPAQUETADO EN CONTENEDOR (Cumple IE2)
-      - name: Iniciar sesión en Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      # Construye la imagen usando tu Dockerfile local y la sube a la nube
-      - name: Construir y Subir Imagen a Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: microservicio-devops
-          IMAGE_TAG: latest
+      # 6. INICIAR SESIÓN Y SUBIR IMAGEN DIRECTO A ECR (Método directo anti-bloqueos)
+      - name: Construir, Autenticar y Subir Imagen a Amazon ECR
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # Login directo nativo de AWS CLI usando tu ID de cuenta de AWS Academy
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 118315411635.dkr.ecr.us-east-1.amazonaws.com
+          
+          # Construcción del contenedor Docker localmente en el runner
+          docker build -t 118315411635.dkr.ecr.us-east-1.amazonaws.com/microservicio-devops:latest .
+          
+          # Subida de la imagen final al repositorio de Amazon ECR
+          docker push 118315411635.dkr.ecr.us-east-1.amazonaws.com/microservicio-devops:latest
