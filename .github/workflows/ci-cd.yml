@@ -15,9 +15,9 @@ jobs:
       - name: Clonar el repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Necesario para que SonarQube realice el análisis completo de historial
+          fetch-depth: 0 # Requerido para el historial completo en SonarQube
 
-      # 2. Configurar el entorno de Java 17 que declaraste en tu pom.xml
+      # 2. Configurar el entorno de Java 17
       - name: Configurar JDK 17
         uses: actions/setup-java@v4
         with:
@@ -41,9 +41,9 @@ jobs:
             -Dsonar.organization=xxcristopherxxc
 
       # 5. CONTROL DE CALIDAD ESTRICTO (Cumple IE6 - Mecanismo de Falla Crítica)
-      # Bloquea el pipeline por completo si el Quality Gate de SonarQube no está en VERDE
+      # Acción oficial con versión fija para solucionar el error "repository not found"
       - name: Validar Quality Gate (Interrupción Automatizada)
-        uses: sonarsource/sonarcloud-quality-gate-action@master
+        uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -63,7 +63,6 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # Construye la imagen usando tu Dockerfile local y la sube a la nube
       - name: Construir y Subir Imagen a Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -74,7 +73,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # 8. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
-      # Fuerza a Amazon ECS a descargar la nueva imagen levantando tareas actualizadas de forma automatizada
+      # Automatiza el despliegue actualizando directamente tu servicio de Amazon ECS
       - name: Desplegar Actualización en Amazon ECS
         run: |
           aws ecs update-service --cluster mi-cluster-ecs --service mi-servicio-devops --force-new-deployment --region us-east-1
