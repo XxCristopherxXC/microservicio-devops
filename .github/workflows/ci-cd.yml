@@ -28,7 +28,6 @@ jobs:
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
-      # Corregido con claves de proyecto y organización en minúsculas para SonarQube Cloud
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,14 +38,14 @@ jobs:
             -Dsonar.projectKey=xxcristopherxxc_microservicio-devops \
             -Dsonar.organization=xxcristopherxxc
 
-      # 5. AUTENTICACIÓN EN LA NUBE DE AWS (Cumple IE2)
+      # 5. AUTENTICACIÓN EN LA NUBE DE AWS ACADEMY (Con soporte total de Session Token)
       - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
+          aws-region: us-east-1 # Ajustado exactamente a Norte de Virginia como tu panel
 
       # 6. CONSTRUCCIÓN Y EMPAQUETADO EN CONTENEDOR (Cumple IE2)
       - name: Iniciar sesión en Amazon ECR
