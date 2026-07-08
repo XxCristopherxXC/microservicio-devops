@@ -30,9 +30,6 @@ jobs:
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
-      # Se incluye la propiedad para que el propio Maven espere el resultado del Quality Gate
-      # Si el Quality Gate falla en SonarCloud, el comando de Maven fallará automáticamente aquí,
-      # logrando la interrupción crítica sin necesidad de acciones externas que den "repository not found".
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -68,7 +65,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # 7. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
-      # Automatiza el despliegue actualizando directamente tu servicio de Amazon ECS
+      # ⚠️ CAMBIA AQUÍ 'mi-cluster-ecs' Y 'mi-servicio-devops' POR TUS NOMBRES REALES DE LA CONSOLA DE AWS
       - name: Desplegar Actualización en Amazon ECS
         run: |
           aws ecs update-service --cluster mi-cluster-ecs --service mi-servicio-devops --force-new-deployment --region us-east-1
