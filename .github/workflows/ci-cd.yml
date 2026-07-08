@@ -14,6 +14,8 @@ jobs:
       # 1. Clonar tu repositorio real de GitHub
       - name: Clonar el repositorio
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para que SonarQube realice el análisis completo de historial
 
       # 2. Configurar el entorno de Java 17 que declaraste en tu pom.xml
       - name: Configurar JDK 17
@@ -27,7 +29,7 @@ jobs:
       - name: Compilar y Ejecutar Pruebas Unitarias
         run: mvn clean test
 
-      # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
+      # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5)
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,7 +40,16 @@ jobs:
             -Dsonar.projectKey=xxcristopherxxc_microservicio-devops \
             -Dsonar.organization=xxcristopherxxc
 
-      # 5. AUTENTICACIÓN EN LA NUBE DE AWS ACADEMY (Con soporte total de Session Token)
+      # 5. CONTROL DE CALIDAD ESTRICTO (Cumple IE6 - Mecanismo de Falla Crítica)
+      # Bloquea el pipeline por completo si el Quality Gate de SonarQube no está en VERDE
+      - name: Validar Quality Gate (Interrupción Automatizada)
+        uses: sonarsource/sonarcloud-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          scanMetadataReportFile: target/sonar/report-task.txt
+
+      # 6. AUTENTICACIÓN EN LA NUBE DE AWS
       - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -47,14 +58,23 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # 6. INICIAR SESIÓN Y SUBIR IMAGEN DIRECTO A ECR (Método directo anti-bloqueos)
-      - name: Construir, Autenticar y Subir Imagen a Amazon ECR
+      # 7. CONSTRUCCIÓN Y EMPAQUETADO EN CONTENEDOR (Cumple IE2)
+      - name: Iniciar sesión en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Construye la imagen usando tu Dockerfile local y la sube a la nube
+      - name: Construir y Subir Imagen a Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: microservicio-devops
+          IMAGE_TAG: latest
         run: |
-          # Login directo nativo de AWS CLI usando tu ID de cuenta de AWS Academy
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 118315411635.dkr.ecr.us-east-1.amazonaws.com
-          
-          # Construcción del contenedor Docker localmente en el runner
-          docker build -t 118315411635.dkr.ecr.us-east-1.amazonaws.com/microservicio-devops:latest .
-          
-          # Subida de la imagen final al repositorio de Amazon ECR
-          docker push 118315411635.dkr.ecr.us-east-1.amazonaws.com/microservicio-devops:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # 8. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
+      # Fuerza a Amazon ECS a descargar la nueva imagen levantando tareas actualizadas de forma automatizada
+      - name: Desplegar Actualización en Amazon ECS
+        run: |
+          aws ecs update-service --cluster mi-cluster-ecs --service mi-servicio-devops --force-new-deployment --region us-east-1
