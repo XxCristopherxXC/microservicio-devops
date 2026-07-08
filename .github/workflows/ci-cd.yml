@@ -29,7 +29,10 @@ jobs:
       - name: Compilar y Ejecutar Pruebas Unitarias
         run: mvn clean test
 
-      # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5)
+      # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
+      # Se incluye la propiedad para que el propio Maven espere el resultado del Quality Gate
+      # Si el Quality Gate falla en SonarCloud, el comando de Maven fallará automáticamente aquí,
+      # logrando la interrupción crítica sin necesidad de acciones externas que den "repository not found".
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,18 +41,10 @@ jobs:
           mvn verify sonar:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.projectKey=xxcristopherxxc_microservicio-devops \
-            -Dsonar.organization=xxcristopherxxc
+            -Dsonar.organization=xxcristopherxxc \
+            -Dsonar.qualitygate.wait=true
 
-      # 5. CONTROL DE CALIDAD ESTRICTO (Cumple IE6 - Mecanismo de Falla Crítica)
-      # CORREGIDO: Se usa el nombre de repositorio oficial de SonarSource sin el "cloud"
-      - name: Validar Quality Gate (Interrupción Automatizada)
-        uses: sonarsource/sonar-quality-gate-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          scanMetadataReportFile: target/sonar/report-task.txt
-
-      # 6. AUTENTICACIÓN EN LA NUBE DE AWS
+      # 5. AUTENTICACIÓN EN LA NUBE DE AWS
       - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -58,7 +53,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # 7. CONSTRUCCIÓN Y EMPAQUETADO EN CONTENEDOR (Cumple IE2)
+      # 6. CONSTRUCCIÓN Y EMPAQUETADO EN CONTENEDOR (Cumple IE2)
       - name: Iniciar sesión en Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -72,7 +67,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 8. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
+      # 7. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
       # Automatiza el despliegue actualizando directamente tu servicio de Amazon ECS
       - name: Desplegar Actualización en Amazon ECS
         run: |
