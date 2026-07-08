@@ -65,7 +65,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # 7. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
-      # ⚠️ REEMPLAZA 'PON_AQUI_EL_NOMBRE_QUE_REVISASTE' POR EL SERVICIO REAL QUE ESTÁ DENTRO DEL CLÚSTER
+      # Corregido de forma definitiva con tus datos reales de AWS Academy
       - name: Desplegar Actualización en Amazon ECS
         run: |
-          aws ecs update-service --cluster devops-cluster-v2 --service PON_AQUI_EL_NOMBRE_QUE_REVISASTE --force-new-deployment --region us-east-1
+          aws ecs update-service --cluster devops-cluster-v2 --service microservicio-service --force-new-deployment --region us-east-1
