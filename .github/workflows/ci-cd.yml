@@ -30,7 +30,6 @@ jobs:
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
-      # ⚠️ REVISA QUE ESTOS TRES VALORES COINCIDAN EXACTAMENTE CON TU PANEL DE SONARCLOUD
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,7 +65,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # 7. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
-      # ⚠️ RECUERDA CAMBIAR ESTOS DOS NOMBRES POR LOS REALES DE TU CONSOLA DE AWS ECS
+      # ⚠️ CAMBIA 'TU_SERVICIO_REAL' POR EL NOMBRE QUE TE APARECE DENTRO DEL CLÚSTER
       - name: Desplegar Actualización en Amazon ECS
         run: |
-          aws ecs update-service --cluster mi-cluster-ecs --service mi-servicio-devops --force-new-deployment --region us-east-1
+          aws ecs update-service --cluster devops-cluster-v2 --service TU_SERVICIO_REAL --force-new-deployment --region us-east-1
