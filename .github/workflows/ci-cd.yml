@@ -15,7 +15,7 @@ jobs:
       - name: Clonar el repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Requerido para el historial completo en SonarQube
+          fetch-depth: 0 # Requerido para historial completo en SonarQube
 
       # 2. Configurar el entorno de Java 17
       - name: Configurar JDK 17
