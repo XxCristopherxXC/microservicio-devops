@@ -30,7 +30,7 @@ jobs:
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
-      # Ajustado con organización en minúsculas estándar de SonarCloud
+      # Configurado exactamente según tu pantalla de información de SonarCloud
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,7 +38,7 @@ jobs:
         run: |
           mvn verify sonar:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.projectKey=xxcristopherxxc_microservicio-devops \
+            -Dsonar.projectKey=XxCristopherxXC_microservicio-devops \
             -Dsonar.organization=xxcristopherxxc \
             -Dsonar.qualitygate.wait=true
 
