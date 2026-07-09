@@ -30,7 +30,7 @@ jobs:
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
-      # Corregido con las mayúsculas exactas de tu cuenta: XxCristopherxXC
+      # Ajustado con organización en minúsculas estándar de SonarCloud
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,8 +38,8 @@ jobs:
         run: |
           mvn verify sonar:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.projectKey=XxCristopherxXC_microservicio-devops \
-            -Dsonar.organization=XxCristopherxXC \
+            -Dsonar.projectKey=xxcristopherxxc_microservicio-devops \
+            -Dsonar.organization=xxcristopherxxc \
             -Dsonar.qualitygate.wait=true
 
       # 5. AUTENTICACIÓN EN LA NUBE DE AWS
@@ -66,7 +66,6 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # 7. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
-      # Configurado con tus datos reales validados (devops-cluster-v2 y microservicio-service)
       - name: Desplegar Actualización en Amazon ECS
         run: |
           aws ecs update-service --cluster devops-cluster-v2 --service microservicio-service --force-new-deployment --region us-east-1
