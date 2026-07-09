@@ -15,7 +15,7 @@ jobs:
       - name: Clonar el repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Requerido para historial completo en SonarQube
+          fetch-depth: 0 # Requerido para el historial completo en SonarQube
 
       # 2. Configurar el entorno de Java 17
       - name: Configurar JDK 17
@@ -30,6 +30,7 @@ jobs:
         run: mvn clean test
 
       # 4. ANÁLISIS DE CUMPLIMIENTO NORMATIVO Y CALIDAD (Cumple IE5 y IE6)
+      # ⚠️ REVISA QUE ESTOS VALORES COINCIDAN EXACTAMENTE CON TU PANEL DE SONARCLOUD
       - name: Análisis de Calidad y Seguridad con SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -65,7 +66,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # 7. DESPLIEGUE EN ENTORNO ORQUESTADO (Cumple IE2)
-      # Corregido de forma definitiva con tus datos reales de AWS Academy
+      # Configurado con tus datos reales de AWS Academy confirmados
       - name: Desplegar Actualización en Amazon ECS
         run: |
           aws ecs update-service --cluster devops-cluster-v2 --service microservicio-service --force-new-deployment --region us-east-1
